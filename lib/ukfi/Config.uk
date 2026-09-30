@@ -1,0 +1,43 @@
+menuconfig LIBUKFI
+	bool "Fault injection framework for Unikraft"
+	default n
+	select LIBUKDEBUG
+	select LIBUKLIBPARAM
+    select LIBUKSCHED
+	# UK_CRASH() reaches uk_crash_trigger() through <uk/assert.h>, whose
+	# arch-specific header is only on the include path when the crash
+	# screen is on (see lib/ukdebug/Makefile.uk).
+	select LIBUKPRINT
+	select LIBUKDEBUG_CRASH_SCREEN
+    help
+        Injects faults into some Unikraft components and generates a report of 
+        the results.
+
+if LIBUKFI
+
+config LIBUKFI_FI_SITE
+	string "Default target operation (NULL disables)"
+	default ""
+
+config LIBUKFI_FI_NOP
+	int "Default invocation at which the fault fires"
+	default 1
+
+config LIBUKFI_FI_PERIOD
+    int "Periodicity of the fault injection (0=disabled)"
+    default 0
+
+config LIBUKFI_FI_PROB
+    int "Probability over 100000 of the fault injection (100000 is always)"
+    default 100000
+
+config LIBUKFI_FI_SEED
+    int "Seed for probabilistic triggers"
+    default 1
+
+config LIBUKFI_FI_FAULT
+    int "Fault that is being injected (0=none, 1=crash, 2=hang, 3=error, 4=delay *delay is possible only if LIBUKSCHED is selected as well)"
+    default 1
+
+
+endif

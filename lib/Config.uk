@@ -1,42 +1,39 @@
-menuconfig LIBUKFI
-	bool "Fault injection framework for Unikraft"
-	default n
-	select LIBUKDEBUG
-	select LIBUKLIBPARAM
-	# UK_CRASH() reaches uk_crash_trigger() through <uk/assert.h>, whose
-	# arch-specific header is only on the include path when the crash
-	# screen is on (see lib/ukdebug/Makefile.uk).
-	select LIBUKPRINT
-	select LIBUKDEBUG_CRASH_SCREEN
-    help
-        Injects faults into some Unikraft components and generates a report of 
-        the results.
+################################################################################
+#
+# Invisible feature flags
+#
+################################################################################
+# set to true when an according feature library was selected
 
-if LIBUKFI
+config HAVE_BOOTENTRY
+       bool
 
-config LIBUKFI_FI_SITE
-	string "Default target operation (NULL disables)"
-	default ""
+config HAVE_LIBC
+       bool
 
-config LIBUKFI_FI_NOP
-	int "Default invocation at which the fault fires"
-	default 1
+config HAVE_TIME
+       bool
 
-config LIBUKFI_FI_PERIOD
-    int "Periodicity of the fault injection (0=disabled)"
-    default 0
+config HAVE_SCHED
+       bool
 
-config LIBUKFI_FI_PROB
-    int "Probability over 10000 of the fault injection (10000 is always)"
-    default 10000
+config HAVE_NW_STACK
+       bool
 
-config LIBUKFI_FI_SEED
-    int "Seed for probabilistic triggers"
-    default 1
+config HAVE_SYSCALL
+       bool
 
-config LIBUKFI_FI_FAULT
-    int "Fault that is being injected (0=none, 1=crash, 2=hang, 3=error, 4=delay *delay is possible only if LIBUKSCHED is selected as well)"
-    default 1
+config HAVE_VFS
+	bool
 
+config HAVE_X86PKU
+	bool
 
-endif
+##
+# Compatibility entries for legacy libraries
+##
+
+config LIBPOSIX_EVENT
+	bool
+	select LIBPOSIX_POLL
+	select LIBPOSIX_EVENTFD

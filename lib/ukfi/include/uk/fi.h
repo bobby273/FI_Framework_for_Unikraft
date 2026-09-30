@@ -3,6 +3,7 @@
 
 	#include <uk/essentials.h>
 	#include <uk/config.h>
+	#include <uk/print.h>
 
 	#define UK_FI_DISARMED 0
 	#define UK_FI_ARMED 1
@@ -17,14 +18,15 @@
 		UK_FI_FAULT_HANG,
 		UK_FI_FAULT_ERROR,
 		#if CONFIG_LIBUKSCHED
-			UK_FI_FAULT_DELAY
+			UK_FI_FAULT_DELAY,
 		#endif
+		UK_FI_FAULT_MAX
 	};
 
 	struct uk_fi_triggers {
-		int n_invocations;
-		int period;
-		int prob_on_100000;
+		unsigned n_invocations;
+		unsigned period;
+		unsigned prob_on_100000;
 	};
 
 	struct uk_fi_site {
@@ -59,10 +61,11 @@
 
 	int uk_fi_hit(struct uk_fi_site *site);
 
-	#define __UK_FI_DECL(name, var)	\
+	#define __UK_FI_DECL(name, var, cf)	\
 		static struct uk_fi_site __used __section(".uk_fitab") __align(8) var={	\
 			.libname = STRINGIFY(__LIBNAME__),	\
 			.site = name,	\
+			.can_fail = cf, \
 			.file = __FILE__,	\
 			.line = __LINE__	\
 		}
@@ -72,9 +75,8 @@
 	//regardless, two sites on the same line will collide.
 	#define UK_FI_SITE(name)    \
 		do{    \
-			__UK_FI_DECL(name, UK_FI_CONCAT(__uk_fi_, __LINE__));	\
+			__UK_FI_DECL(name, UK_FI_CONCAT(__uk_fi_, __LINE__), CANNOT_FAIL);	\
 			UK_FI_COUNT(UK_FI_CONCAT(__uk_fi_, __LINE__));	\
-			UK_FI_CONCAT(__uk_fi_, __LINE__).can_fail = CANNOT_FAIL;	\
 			if(unlikely(UK_FI_CONCAT(__uk_fi_, __LINE__).armed) ) {	\
 				int ret = uk_fi_hit(&UK_FI_CONCAT(__uk_fi_, __LINE__)); 	\
 				if(ret) {	\
@@ -85,12 +87,11 @@
 
 	#define UK_FI_SITE_ERR(name, err)    \
 		do{    \
-			__UK_FI_DECL(name, UK_FI_CONCAT(__uk_fi_, __LINE__));	\
+			__UK_FI_DECL(name, UK_FI_CONCAT(__uk_fi_, __LINE__), CAN_FAIL);	\
 			UK_FI_COUNT(UK_FI_CONCAT(__uk_fi_, __LINE__));	\
-			UK_FI_CONCAT(__uk_fi_, __LINE__).can_fail = CAN_FAIL;	\
 			if(unlikely(UK_FI_CONCAT(__uk_fi_, __LINE__).armed)) {	\
-				int ret = uk_fi_hit(&UK_FI_CONCAT(__uk_fi_, __LINE__)); \
-				if(ret) \
+				int __returned = uk_fi_hit(&UK_FI_CONCAT(__uk_fi_, __LINE__)); \
+				if(__returned) \
 					return (err);	\
 			}   \
 		}while(0);	
