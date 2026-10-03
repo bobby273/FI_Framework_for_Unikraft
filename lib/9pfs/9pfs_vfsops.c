@@ -44,8 +44,10 @@
 #include "9pfs.h"
 
 #if CONFIG_LIBUKFI
-//<bobby273> added to inject a crash in mount
-//to enable the crash: run unikraft with 9pfscrashconfig or add CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="mount" to your own config
+//<bobby273> added to perform a fault injection analysis
+//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="<operation_to_inject>" to your own config
+//at runtime instead, with no rebuild: -append "libukfi.fi_site=<operation_to_inject> libukfi.fi_fault=<0..4>"
+//remember to change the fault operation to inject by editing the CONFIG_LIBUKFI_FI_FAULT value (default is crash)
 #include <uk/fi.h>
 #endif
 
@@ -173,8 +175,10 @@ static int uk_9pfs_mount(struct mount *mp, const char *dev,
 	int rc;
 
 	#if CONFIG_LIBUKFI
-	//<bobby273> crashing right here
-	//UK_FI_SITE("mount");
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="mount" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=mount libukfi.fi_fault=<0..4>"
+	UK_FI_SITE("mount");
 	#endif
 
 	/* Set data as null, vnop_inactive() checks this for the root fid. */
@@ -253,6 +257,13 @@ static void uk_9pfs_release_tree_fids(struct dentry *d)
 static int uk_9pfs_unmount(struct mount *mp, int flags __unused)
 {
 	struct uk_9pfs_mount_data *md = UK_9PFS_MD(mp);
+
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="unmount" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=unmount libukfi.fi_fault=<0..4>"
+	UK_FI_SITE("unmount");
+	#endif
 
 	uk_9pfs_release_tree_fids(mp->m_root);
 	vfscore_release_mp_dentries(mp);

@@ -47,6 +47,14 @@
 
 #include "9pfs.h"
 
+#if CONFIG_LIBUKFI
+//<bobby273> added to perform a fault injection analysis
+//to enable the crash: run unikraft with 9pfscrashconfig or add CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="<operation_to_inject>" to your own config
+//at runtime instead, with no rebuild: -append "libukfi.fi_site=<operation_to_inject> libukfi.fi_fault=<0..4>"
+//remember to change the fault operation to inject by editing the CONFIG_LIBUKFI_FI_FAULT value (default is crash)
+#include <uk/fi.h>
+#endif
+
 static uint32_t uk_9pfs_open_mode_from_posix_flags(int flags)
 {
 	uint32_t mode = 0;
@@ -194,6 +202,13 @@ static int uk_9pfs_open(struct vfscore_file *file)
 	struct uk_9pfs_file_data *fd;
 	int rc;
 
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="open" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=open libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("open", ENOMEM);
+	#endif
+
 	/* Allocate memory for file data. */
 	fd = calloc(1, sizeof(*fd));
 	if (!fd)
@@ -237,6 +252,13 @@ static int uk_9pfs_close(struct vnode *vn __unused, struct vfscore_file *file)
 {
 	struct uk_9pfs_file_data *fd = UK_9PFS_FD(file);
 
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="close" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=close libukfi.fi_fault=<0..4>"
+	UK_FI_SITE("close");
+	#endif
+
 	if (fd->readdir_buf)
 		free(fd->readdir_buf);
 
@@ -256,6 +278,13 @@ static int uk_9pfs_lookup(struct vnode *dvp, const char *name,
 	struct uk_9pfid *fid;
 	struct vnode *vp;
 	int rc;
+
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="lookup" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=lookup libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("lookup", ENOENT);
+	#endif
 
 	if (strlen(name) > NAME_MAX)
 		return ENAMETOOLONG;
@@ -359,6 +388,12 @@ out:
 
 static int uk_9pfs_inactive(struct vnode *vp)
 {
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="inactive" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=inactive libukfi.fi_fault=<0..4>"
+	UK_FI_SITE("inactive");
+	#endif
 	if (vp->v_data)
 		uk_9pfs_free_vnode_data(vp);
 
@@ -582,6 +617,13 @@ static int uk_9pfs_read(struct vnode *vp, struct vfscore_file *fp,
 	int64_t bytes;
 	int i = 0;
 
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="read" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=read libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("read", EIO);
+	#endif
+
 	if (vp->v_type == VDIR)
 		return EISDIR;
 	if (vp->v_type != VREG)
@@ -628,6 +670,13 @@ static int uk_9pfs_write(struct vnode *vp, struct uio *uio, int ioflag)
 	struct iovec *iov;
 	int64_t bytes;
 	int rc, i = 0;
+
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="write" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=write libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("write", EIO);
+	#endif
 
 	if (vp->v_type == VDIR)
 		return EISDIR;
@@ -704,6 +753,13 @@ static int uk_9pfs_getattr(struct vnode *vp, struct vattr *attr)
 	struct uk_9pfid *fid = UK_9PFS_VFID(vp);
 	struct uk_9preq *stat_req;
 	int rc = 0;
+
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="getattr" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=getattr libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("getattr", EIO);
+	#endif
 
 	if (md->proto == UK_9P_PROTO_2000L) {
 		struct uk_9p_attr stat;
@@ -892,6 +948,13 @@ static int uk_9pfs_fsync(struct vnode *vp, struct vfscore_file *fp)
 {
 	struct uk_9pfs_mount_data *md = UK_9PFS_MD(vp->v_mount);
 	struct uk_9pfid *fid = UK_9PFS_FD(fp)->fid;
+
+	#if CONFIG_LIBUKFI
+	//<bobby273> injecting fault right here
+	//to enable the injection: run unikraft after adding CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="fsync" to your own config
+	//at runtime instead, with no rebuild: -append "libukfi.fi_site=fsync libukfi.fi_fault=<0..4>"
+	UK_FI_SITE_ERR("fsync", EIO);
+	#endif
 
 	if (md->proto == UK_9P_PROTO_2000L) {
 		return -uk_9p_fsync(md->dev, fid);

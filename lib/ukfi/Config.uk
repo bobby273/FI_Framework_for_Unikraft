@@ -1,5 +1,5 @@
 menuconfig LIBUKFI
-	bool "Fault injection framework for Unikraft"
+	bool "ukfi: fault injection framework for Unikraft"
 	default n
 	select LIBUKDEBUG
 	select LIBUKLIBPARAM
