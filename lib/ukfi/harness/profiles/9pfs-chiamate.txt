@@ -1,0 +1,20 @@
+# Chiamate per operazione 9pfs sotto carico (finestra 20 s)
+# Redis: redis-benchmark -n 3000 -c 20, AOF attivo
+# Nginx: ab -n 3000 -c 20, ~2100 richieste servite
+
+operazione                        redis      nginx
+uk_9pfs_write                      9181       6351
+uk_9pfs_lookup                       23       8428
+uk_9pfs_vtype_from_mode_l             7       8424
+uk_9pfs_inactive                      7       8418
+uk_9pfs_read                          2       6309
+uk_9pfs_getattr                       1       4207
+uk_9pfs_open                          7       2107
+uk_9pfs_fsync                        12       2104
+uk_9pfs_close                         4       2104
+uk_9pfs_create                        4          4
+uk_9pfs_rename                        2          0
+uk_9pfs_ioctl                         2          1
+uk_9pfs_posix_perm_from_mode          1          0
+uk_9pfs_mkdir                         1          0
+uk_9pfs_create_generic                1          0
