@@ -39,5 +39,8 @@ config LIBUKFI_FI_FAULT
     int "Fault that is being injected (0=none, 1=crash, 2=hang, 3=error, 4=delay *delay is possible only if LIBUKSCHED is selected as well)"
     default 1
 
+config LIBUKFI_GCOV_AFTER_MS
+	int "Time in ms waited to exit the application for profiling purposes (0=disabled)"
+	default 0
 
 endif

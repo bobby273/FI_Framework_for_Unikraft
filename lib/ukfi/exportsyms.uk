@@ -1,1 +1,6 @@
 uk_fi_hit
+__memcpy_chk
+__sprintf_chk
+__fprintf_chk
+__vfprintf_chk
+__isoc23_strtol

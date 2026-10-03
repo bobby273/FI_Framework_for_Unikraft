@@ -43,9 +43,11 @@
 
 #include "9pfs.h"
 
+#if CONFIG_LIBUKFI
 //<bobby273> added to inject a crash in mount
 //to enable the crash: run unikraft with 9pfscrashconfig or add CONFIG_LIBUKFI=y and CONFIG_LIBUKFI_FI_SITE="mount" to your own config
 #include <uk/fi.h>
+#endif
 
 extern struct vnops uk_9pfs_vnops;
 
@@ -170,8 +172,10 @@ static int uk_9pfs_mount(struct mount *mp, const char *dev,
 	int version_accepted;
 	int rc;
 
+	#if CONFIG_LIBUKFI
 	//<bobby273> crashing right here
-	UK_FI_SITE("mount");
+	//UK_FI_SITE("mount");
+	#endif
 
 	/* Set data as null, vnop_inactive() checks this for the root fid. */
 	mp->m_root->d_vnode->v_data = NULL;

@@ -1,4 +1,7 @@
 $(eval $(call addlib_s,libukfi,$(CONFIG_LIBUKFI)))
-CINCLUDES-y += -I$(LIBUKFI_BASE)/include
+CINCLUDES-$(CONFIG_LIBUKFI) += -I$(LIBUKFI_BASE)/include
 LIBUKFI_SRCS-y += $(LIBUKFI_BASE)/fi.c
 LIBUKFI_SRCS-y += $(LIBUKFI_BASE)/fi.ld
+LIBUKFI_SRCS-$(CONFIG_LIBUKGCOV) += $(LIBUKFI_BASE)/gcov.c
+LIBUKFI_SRCS-$(CONFIG_LIBUKGCOV) += $(LIBUKFI_BASE)/gcov_glibc_shim.c
+
