@@ -1,0 +1,99 @@
+c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+
+
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+0EFCACB0+0EF0ACB0 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
+
+
+Booting from ROM..[    0.000000] Info: [libukrandom] <swrand.c @  111> Initializing the random number generator...
+[    0.000000] Info: [libukrandom] <random.c @  108> CSPRNG seed source: CPU
+[    0.000000] Info: [libkvmplat] <setup.c @  179> Switch from bootstrap stack to stack @0x11000
+[    0.000000] Info: [libukboot] <boot.c @  279> Unikraft constructor table at 0x398000 - 0x398060
+[    0.000000] Info: [libukboot] <boot.c @  288> Initialize memory allocator...
+[    0.000000] Info: [libukallocbbuddy] <bbuddy.c @  659> Initialize binary buddy allocator 11000
+[    0.000000] Info: [libukboot] <boot.c @  347> Initialize the IRQ subsystem...
+[    0.000000] Info: [libukboot] <boot.c @  354> Initialize platform time...
+[    0.000000] Info: [libkvmplat] <tscclock.c @  258> Calibrating TSC clock against i8254 timer
+[    0.100001] Info: [libkvmplat] <tscclock.c @  279> Clock source: TSC, frequency estimate is 1992155330 Hz
+[    0.109661] Info: [libukboot] <boot.c @  358> Initialize scheduling...
+[    0.116302] Info: [libukschedcoop] <schedcoop.c @  289> Initializing cooperative scheduler
+[    0.124822] Info: [libukboot] <boot.c @  391> Init Table @ 0x398060 - 0x398180
+[    0.132358] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:unmount in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vfsops.c:265, armed=0, inv=0, trigger.n_invocations=0
+[    0.153860] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:mount in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vfsops.c:181, armed=0, inv=0, trigger.n_invocations=0
+[    0.184936] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:fsync in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:956, armed=0, inv=0, trigger.n_invocations=0
+[    0.214650] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:getattr in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:761, armed=0, inv=0, trigger.n_invocations=0
+[    0.243847] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:write in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:678, armed=0, inv=0, trigger.n_invocations=0
+[    0.273382] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:read in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:624, armed=0, inv=0, trigger.n_invocations=0
+[    0.302762] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:inactive in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:395, armed=0, inv=0, trigger.n_invocations=0
+[    0.332741] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:lookup in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:286, armed=0, inv=0, trigger.n_invocations=0
+[    0.362162] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:close in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:259, armed=0, inv=0, trigger.n_invocations=0
+[    0.391663] Info: [libukfi] <fi.c @   61> Fault injection site: lib9pfs:open in file /srv/unikraft/unikraft/lib/9pfs/9pfs_vnops.c:209, armed=0, inv=0, trigger.n_invocations=0
+[    0.423805] Info: [libukbus] <bus.c @  133> Initialize bus handlers...
+[    0.436764] Info: [libuk9p] <9pdev_trans.c @   59> Registered transport virtio
+[    0.454907] Info: [libukbus] <bus.c @  135> Probe buses...
+[    0.465723] Info: [libukbus_pci] <pci_bus.c @  159> PCI 00:00.00 (0600 8086:1237): <no driver>
+[    0.483072] Info: [libukbus_pci] <pci_bus.c @  159> PCI 00:01.00 (0600 8086:7000): <no driver>
+[    0.499954] Info: [libukbus_pci] <pci_bus.c @  159> PCI 00:02.00 (0300 1234:1111): <no driver>
+[    0.516672] Info: [libukbus_pci] <pci_bus.c @  159> PCI 00:03.00 (0200 1af4:1000): driver 0x4530a0
+[    0.533740] Info: [libvirtio_pci] <virtio_pci.c @  386> Added virtio-pci device 1000
+[    0.549614] Info: [libvirtio_pci] <virtio_pci.c @  388> Added virtio-pci subsystem_device_id 0001
+[    0.567077] Info: [libvirtio_bus] <virtio_bus.c @  128> Virtio device 0x552020 initialized
+[    0.583622] Info: [libuknetdev] <netdev.c @  198> Registered netdev0: 0x553030 (virtio-net)
+[    0.600065] Info: [libukbus_pci] <pci_bus.c @  159> PCI 00:04.00 (0000 1af4:1009): driver 0x4530a0
+[    0.617174] Info: [libvirtio_pci] <virtio_pci.c @  386> Added virtio-pci device 1009
+[    0.633366] Info: [libvirtio_pci] <virtio_pci.c @  388> Added virtio-pci subsystem_device_id 0009
+[    0.650956] Info: [libvirtio_bus] <virtio_bus.c @  128> Virtio device 0x92020 initialized
+[    0.667324] Info: [libvirtio_9p] <virtio_9p.c @  408> virtio-9p: Configured: features=0x1 tag=fs0
+[    0.684238] Info: [libvirtio_9p] <virtio_9p.c @  422> virtio-9p: fs0 started
+[    0.697309] Info: [liblwip] <init.c @  174> Initializing lwip
+[    0.707490] Info: [liblwip] <init.c @  225> Attach network device 0 to lwIP...
+[    0.724141] Info: [libuknetdev] <netdev.c @  407> netdev0: Configured interface
+[    0.740581] Info: [libuknetdev] <netdev.c @  554> netdev0: Configured receive queue 0
+[    0.757911] Info: [libuknetdev] <netdev.c @  587> netdev0: Configured transmit queue 0
+[    0.775554] Info: [libvirtio_net] <virtio_net.c @ 1403> virtio-net: 0 started
+[    0.791749] Info: [libuknetdev] <netdev.c @  606> netdev0: Started interface
+[    0.803071] Info: [liblwip] <init.c @  345> en1: Hardware address: 52:54:00:12:34:56
+[    0.820427] Info: [liblwip] <init.c @  352> en1: Check checksums:
+[    0.831352] Info: [liblwip] <init.c @  371> en1: Generate checksums: IP UDP TCP ICMP ICMP6
+[    0.849309] Info: [liblwip] <init.c @  442> en1: Set as default interface
+[    0.860827] Info: [liblwip] <init.c @  451> en1: DHCP configuration (background)...
+[    0.878099] Info: [libvfscore] <mount.c @  122> VFS: mounting 9pfs at /
+[    0.890737] Warn: [libposix_process] <clone.c @  193> uk_posix_clone_sighand() stubbed
+[    0.908710] Warn: [libuklock] <semaphore.c @   23> uk_posix_clone_sysvsem() stubbed
+en1: Interface is up
+Powered by
+o.   .o       _ _               __ _
+Oo   Oo  ___ (_) | __ __  __ _ ' _) :_
+oO   oO ' _ `| | |/ /  _)' _` | |_|  _)
+oOo oOO| | | | |   (| | | (_) |  _) :_
+ OoOoO ._, ._:_:_,\_._,  .__,_:_, \___)
+                 Ijiraq 0.21.0~93315aaf
+[    0.937506] Info: [libukboot] <boot.c @  470> Pre-init table at 0x398288 - 0x398288
+[    0.959119] Info: [libukboot] <boot.c @  481> Constructor table at 0x398288 - 0x398288
+[    0.980579] Info: [libukboot] <boot.c @  496> Environment variables:
+[    0.995189] Info: [libukboot] <boot.c @  498> 	PATH=/bin
+[    1.008161] Info: [libukboot] <boot.c @  504> Calling main(1, ['workdir/build/nginx_qemu-x86_64'])
+[    1.049008] Warn: [libvfscore] <main.c @ 2214> __uk_syscall_r_chown() stubbed
+[    1.081397] Warn: [libposix_process] <rt_sigprocmask.c @   72> __uk_syscall_r_rt_sigprocmask() stubbed
+[    1.110919] Warn: [libposix_process] <rt_sigaction.c @   69> __uk_syscall_r_rt_sigaction() stubbed
+[   25.937821] Info: [libukboot] <shutdown_req.c @   50> Shutdown requested (0)
+[   25.971846] Info: [libukfi] <gcov.c @   36> Shutdown requested successfully
+[   26.006736] Info: [libukboot] <boot.c @  430> Shutting down system (0)
+[   26.040702] Info: [libukfi] <gcov.c @   71> Dumping gcov info into /coverage_nginx.dump
+[   26.300114] Info: [libukfi] <gcov.c @   76> Successfully dumped gcov info
+[   26.318322] Info: [libposix_poll] <epoll.c @  238> Removing closed file fd:6 (@0xf8cc020)
+[   26.338848] Info: [libvfscore] <automount.c @  873> Unmounting / (0)...
+[   26.352338] CRIT: [libuk9p] <9pdev.c @  118> Assertion failure: uk_list_empty(&fid_mgmt->fid_active_list)
+[   26.373809] CRIT: Unikraft Crash - Ijiraq (0.21.0~93315aaf)
+[   26.384528] CRIT:     _      
+[   26.392443] CRIT:   cx xo    
+[   26.400386] CRIT:   (|O|)/V  
+[   26.408205] CRIT:            
+[   26.415850] CRIT: Registers:
+[   26.424176] CRIT:  rip: 0008:000000000016bc28
+[   26.434046] CRIT:  rsp: 0010:0000000000010ee0 eflags: 00010002 orig_rax: 0000000000000000
+[   26.453743] CRIT:  rax: 0000000000000001 rbx: 000000000fefc020 rcx:0000000000000007
+[   26.471519] CRIT:  rdx: 00000000003ba2f0 rsi: 0000000000383ed9 rdi:0000000000000000
+[   26.488486] CRIT:  rbp: 0000000000010f00 r08: 0000000000000018 r09:00000000ffffff80
+[   26.505838] CRIT:  r10: 00000000000003d4 r11: 00000000000003d5 r12:0000000000000001
+[   26.522561] CRIT:  r13: 0000000000474948 r14: 0000000000000001 r15:0000000000000000

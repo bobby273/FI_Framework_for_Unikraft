@@ -20,6 +20,8 @@ UK_LIBPARAM_PARAM(fi_nop, uint,"Fire the fault on the n-th invocation of the ope
 UK_LIBPARAM_PARAM(fi_prob, uint,"Probability of triggering the fault");
 UK_LIBPARAM_PARAM(fi_period, uint,"Periodicity of the fault injection");
 UK_LIBPARAM_PARAM(fi_seed, __u32,"Random seed for fault injection");
+UK_LIBPARAM_PARAM(fi_fault, int, "Fault type to inject (0=none, 1=crash, 2=hang, 3=error, 4=delay)");
+
 
 static __u32 uk_fi_init_state(__u32 state, __u32 seed){
     //using the Knuth constant to generate the first random number to avoid obtaining zero as the 

@@ -1,0 +1,330 @@
+name: redis-prova
+timeout: 40
+active: true
+build:
+  defconfig: redis-9pfs-0.21
+  jobs: 4
+signals:
+  fault_fired:
+    source: guest_log
+    pattern: fault injected at
+  crash_screen:
+    source: guest_log
+    pattern: Unikraft Crash
+  clear_shutdown:
+    source: guest_log
+    pattern: Shutting down system
+  guest_timeout:
+    source: runner
+    kind: timeout
+  client_error:
+    source: client
+    kind: nonzero_exit
+  fault_armed:
+    source: guest_log
+    pattern: armed=1
+  fault_requested:
+    source: config
+  client_degraded:
+    source: client
+    kind: duration_factor
+  fault_in_boot:
+    source: guest_log
+    kind: log_order
+    pattern: fault injected at
+    before: Ready to accept connections
+  guest_never_ready:
+    source: client
+    kind: readiness_failed
+oracles:
+- name: gold_run
+  all_of:
+  - clear_shutdown
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  - fault_fired
+  - fault_armed
+  - fault_requested
+  outcome: gold_run_succeded
+- name: not_valid_run
+  all_of:
+  - fault_requested
+  - fault_armed
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  - fault_fired
+  outcome: void
+- name: fault_not_armed_run
+  all_of:
+  - fault_requested
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  - fault_fired
+  - fault_armed
+  outcome: fault_requested_but_not_armed
+- name: client_error_clear_shutdown_run
+  all_of:
+  - client_error
+  - clear_shutdown
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - fault_fired
+  outcome: client_error_with_clear_shutdown
+- name: fault_armed_not_requested_run
+  all_of:
+  - fault_armed
+  none_of:
+  - fault_requested
+  - crash_screen
+  - guest_timeout
+  - client_error
+  outcome: fault_armed_but_not_requested
+- name: crash_in_boot_absorbed_run
+  all_of:
+  - crash_screen
+  - fault_in_boot
+  - fault_fired
+  none_of:
+  - guest_timeout
+  - client_error
+  - client_degraded
+  - guest_never_ready
+  outcome: crashed_at_boot_absorbed
+- name: crash_in_boot_fatal_run
+  all_of:
+  - crash_screen
+  - fault_in_boot
+  - fault_fired
+  - guest_never_ready
+  none_of:
+  - guest_timeout
+  outcome: crashed_at_boot_fatal
+- name: client_error_only_run
+  all_of:
+  - client_error
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - fault_fired
+  - clear_shutdown
+  outcome: client_error_only
+- name: crash_and_timeout_run
+  all_of:
+  - crash_screen
+  - guest_timeout
+  outcome: crash_and_timeout
+- name: delay_run
+  all_of:
+  - fault_fired
+  - client_degraded
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  outcome: delay_injected
+- name: delay_not_injected_run
+  all_of:
+  - client_degraded
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  - fault_fired
+  outcome: delay_observed_not_injected
+- name: bug_timeout_not_observed
+  all_of:
+  - guest_timeout
+  none_of:
+  - crash_screen
+  - client_error
+  - fault_fired
+  outcome: timeout_not_injected
+- name: bug_timeout_observed
+  all_of:
+  - guest_timeout
+  - client_error
+  none_of:
+  - crash_screen
+  - fault_fired
+  outcome: timeout_not_injected_and_observed
+- name: bug_crash_not_observed
+  all_of:
+  - crash_screen
+  none_of:
+  - guest_timeout
+  - client_error
+  - fault_fired
+  outcome: crashed_not_injected
+- name: bug_crash_observed
+  all_of:
+  - crash_screen
+  - client_error
+  none_of:
+  - guest_timeout
+  - fault_fired
+  outcome: crashed_not_injected_and_observed
+- name: hang_run
+  all_of:
+  - guest_timeout
+  - fault_fired
+  none_of:
+  - crash_screen
+  outcome: hang_injected
+- name: crash_error_run
+  all_of:
+  - crash_screen
+  - client_error
+  - fault_fired
+  outcome: crash_seen
+- name: invisible_crash_run
+  all_of:
+  - crash_screen
+  - fault_fired
+  none_of:
+  - client_error
+  outcome: crash_not_seen
+- name: api_error_run
+  all_of:
+  - client_error
+  - fault_fired
+  none_of:
+  - crash_screen
+  - guest_timeout
+  outcome: api_error_only
+- name: fail_silent_run
+  all_of:
+  - fault_fired
+  none_of:
+  - crash_screen
+  - client_error
+  - guest_timeout
+  outcome: failed_silently
+- name: no_signal_run
+  none_of:
+  - crash_screen
+  - guest_timeout
+  - client_error
+  - fault_fired
+  - fault_armed
+  - fault_requested
+  - clear_shutdown
+  - fault_in_boot
+  - guest_never_ready
+  - client_degraded
+  outcome: wrongly_configured
+- name: unclassified_run
+  outcome: unclassified
+faults:
+  crash:
+    fi_fault: 1
+    requires_can_fail: false
+    must_fire: true
+    admissible:
+    - crash_error_run
+    - invisible_crash_run
+  hang:
+    fi_fault: 2
+    requires_can_fail: false
+    must_fire: true
+    admissible:
+    - hang_run
+  error:
+    fi_fault: 3
+    requires_can_fail: true
+    must_fire: true
+    admissible:
+    - fail_silent_run
+    - api_error_run
+    - crash_error_run
+    - invisible_crash_run
+  delay:
+    fi_fault: 4
+    fi_period_override: 10
+    requires_can_fail: false
+    must_fire: true
+    admissible:
+    - delay_run
+    - fail_silent_run
+run:
+  app_dir: /srv/unikraft/apps/redis
+  kernel: workdir/build/redis_qemu-x86_64
+  qemu: qemu-system-x86_64
+  memory: 256M
+  accel: kvm
+  port: 6379
+  hostfwd: tcp::6379-:6379
+  rootfs: rootfs
+  mount_tag: fs0
+  devices:
+  - -device isa-debug-exit,iobase=0x501,iosize=2
+  exit_codes:
+    83: clear_shutdown
+    85: crash
+    0: acpi_fallback
+  reset:
+  - rm -rf <rootfs>/appendonlydir
+  append:
+    baseline: libukfi.gcov_after_ms=<ms> -- /redis.conf
+    injected: libukfi.fi_site=<site> libukfi.fi_fault=<fault> libukfi.fi_nop=<nop>
+      libukfi.fi_period=<period> libukfi.gcov_after_ms=<ms> -- /redis.conf
+  gcov_after_ms: 25000
+  log: boot.log
+workload:
+  readiness:
+    command: redis-cli -h 127.0.0.1 -p <port> ping
+    expect: PONG
+    interval_ms: 200
+    deadline_s: 20
+    on_failure: guest_never_ready
+  client:
+    command: redis-benchmark -h 127.0.0.1 -p <port> -t set -n 10000 -c 50
+    duration_s: 0.9
+  metrics:
+  - throughput_rps
+  - latency_max_ms
+  - latency_p99_ms
+  degraded_if:
+    duration_factor: 1.5
+  teardown:
+  - pkill -f redis-benchmark
+  metrics_parser: redis_benchmark
+matrix:
+  sites:
+    write:
+      can_fail: true
+      fi_nop:
+      - 1
+  faults:
+  - crash
+  - hang
+  - error
+  - delay
+  fi_period: 0
+  fi_prob: 100000
+  baseline_runs: 5
+protocol:
+  rounds: 2
+  repeat: all
+  reproducible_if: same_outcome
+  on_disagreement: flaky
+  baseline:
+    count: 2
+    interleave_every: 1000
+    establishes:
+    - latency_max_baseline_ms
+    - boot_complete_ms
+  order: sequential
+  results: results/prova.jsonl
+  append_immediately: true
+  resume_from: last_row
+  abort_if:
+    consecutive_must_fire_failures: 3
+    consecutive_infra_errors: 3
+  infra_retry: 1

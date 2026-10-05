@@ -1,5 +1,5 @@
 name: redis
-timeout: 30
+timeout: 40
 active: true
 
 build:
@@ -29,7 +29,7 @@ signals:
     source: config
   client_degraded:
     source: client
-    kind: max_latency_threshold
+    kind: duration_factor
   fault_in_boot:
     source: guest_log
     kind: log_order
@@ -276,10 +276,12 @@ faults:
 
   delay:
     fi_fault: 4
+    fi_period_override: 10
     requires_can_fail: false
     must_fire: true
     admissible: 
       - delay_run
+      - fail_silent_run
 
 
 run:
@@ -289,6 +291,7 @@ run:
   memory: 256M
   accel: kvm
   port: 6379
+  hostfwd: 'tcp::6379-:6379'
   rootfs: rootfs
   mount_tag: fs0
 
@@ -307,7 +310,7 @@ run:
     baseline: "libukfi.gcov_after_ms=<ms> -- /redis.conf"
     injected: "libukfi.fi_site=<site> libukfi.fi_fault=<fault> libukfi.fi_nop=<nop> libukfi.fi_period=<period> libukfi.gcov_after_ms=<ms> -- /redis.conf"
     
-  gcov_after_ms: 15000
+  gcov_after_ms: 25000
 
   log: boot.log
 
@@ -320,8 +323,8 @@ workload:
     on_failure: guest_never_ready
 
   client:
-    command: "redis-benchmark -h 127.0.0.1 -p <port> -t set -n 100000 -c 50"
-    duration_s: 2.5
+    command: "redis-benchmark -h 127.0.0.1 -p <port> -t set -n 10000 -c 50"
+    duration_s: 0.9
 
   metrics:
     - throughput_rps
@@ -329,16 +332,18 @@ workload:
     - latency_p99_ms
 
   degraded_if:
-    latency_max_ms: "> 5"
+    duration_factor: 1.5
 
   teardown:
     - "pkill -f redis-benchmark"
 
+  metrics_parser: redis_benchmark
+
 matrix:
   sites:
-    write:    { can_fail: true,  fi_nop: [1, 2000, 4000] } # invoked 4267 times
+    write:    { can_fail: true,  fi_nop: [1, 250, 450] } # invoked 4267 times
     lookup:   { can_fail: true,  fi_nop: [1, 12, 23] } # invoked only during boot phase
-    fsync:    { can_fail: true,  fi_nop: [1, 10, 12] } #invoked 12 times
+    fsync:    { can_fail: true,  fi_nop: [1, 5, 9] } #invoked 12 times
     open:     { can_fail: true,  fi_nop: [1, 4, 7] } # invoked only during boot phase
     read:     { can_fail: true,  fi_nop: [1, 2] } # invoked only during boot phase
     getattr:  { can_fail: true,  fi_nop: [1] } # invoked only during boot phase
@@ -366,7 +371,7 @@ protocol:
       - boot_complete_ms
 
   order: sequential
-  results: results/redis-<timestamp>.jsonl
+  results: results/redis.jsonl
   append_immediately: true
   resume_from: last_row
 
