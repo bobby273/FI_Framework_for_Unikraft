@@ -1,0 +1,352 @@
+name: nginx
+timeout: 30
+active: true
+
+build:
+  defconfig: nginx-9pfs-0.21
+  jobs: 4
+
+signals:
+  fault_fired:
+    source: guest_log
+    pattern: "fault injected at"
+  crash_screen:
+    source: guest_log
+    pattern: "Unikraft Crash"
+  clear_shutdown:
+    source: guest_log
+    pattern: "Shutting down system"
+  guest_timeout:
+    source: runner
+    kind: timeout
+  client_error:
+    source: client
+    kind: nonzero_exit
+  fault_armed:
+    source: guest_log
+    pattern: "armed=1"
+  fault_requested:
+    source: config
+  client_degraded:
+    source: client
+    kind: max_latency_threshold
+  guest_never_ready:
+    source: client
+    kind: readiness_failed
+
+
+oracles:
+  - name: gold_run
+    all_of:
+      - clear_shutdown
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+      - fault_fired
+      - fault_armed
+      - fault_requested
+    outcome: gold_run_succeded
+
+  - name: not_valid_run
+    all_of:
+      - fault_requested
+      - fault_armed
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+      - fault_fired
+    outcome: void
+
+  - name: fault_not_armed_run
+    all_of:
+      - fault_requested
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+      - fault_fired
+      - fault_armed
+    outcome: fault_requested_but_not_armed
+
+  - name: client_error_clear_shutdown_run
+    all_of:
+      - client_error
+      - clear_shutdown
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - fault_fired
+    outcome: client_error_with_clear_shutdown
+
+  - name: fault_armed_not_requested_run
+    all_of:
+      - fault_armed
+    none_of:
+      - fault_requested
+      - crash_screen
+      - guest_timeout
+      - client_error
+    outcome: fault_armed_but_not_requested
+
+  - name: client_error_only_run
+    all_of:
+      - client_error
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - fault_fired
+      - clear_shutdown
+    outcome: client_error_only
+
+  - name: crash_and_timeout_run
+    all_of:
+      - crash_screen
+      - guest_timeout
+    outcome: crash_and_timeout
+
+  - name: delay_run
+    all_of:
+      - fault_fired
+      - client_degraded
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+    outcome: delay_injected
+
+  - name: delay_not_injected_run
+    all_of:
+      - client_degraded
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+      - fault_fired
+    outcome: delay_observed_not_injected
+
+  - name: bug_timeout_not_observed
+    all_of:
+      - guest_timeout
+    none_of:
+      - crash_screen
+      - client_error
+      - fault_fired
+    outcome: timeout_not_injected
+
+  - name: bug_timeout_observed
+    all_of:
+      - guest_timeout
+      - client_error
+    none_of:
+      - crash_screen
+      - fault_fired
+    outcome: timeout_not_injected_and_observed
+
+  - name: bug_crash_not_observed
+    all_of:
+      - crash_screen
+    none_of:
+      - guest_timeout
+      - client_error
+      - fault_fired
+    outcome: crashed_not_injected
+
+  - name: bug_crash_observed
+    all_of:
+      - crash_screen
+      - client_error
+    none_of:
+      - guest_timeout
+      - fault_fired
+    outcome: crashed_not_injected_and_observed
+
+  - name: hang_run
+    all_of:
+      - guest_timeout
+      - fault_fired
+    none_of:
+      - crash_screen
+    outcome: hang_injected
+
+  - name: crash_error_run
+    all_of:
+      - crash_screen
+      - client_error
+      - fault_fired
+    outcome: crash_seen
+
+  - name: invisible_crash_run
+    all_of:
+      - crash_screen
+      - fault_fired
+    none_of:
+      - client_error
+    outcome: crash_not_seen
+
+  - name: api_error_run
+    all_of:
+      - client_error
+      - fault_fired
+    none_of:
+      - crash_screen
+      - guest_timeout
+    outcome: api_error_only
+
+  - name: fail_silent_run
+    all_of:
+      - fault_fired
+    none_of:
+      - crash_screen
+      - client_error
+      - guest_timeout
+    outcome: failed_silently
+
+  - name: no_signal_run
+    none_of:
+      - crash_screen
+      - guest_timeout
+      - client_error
+      - fault_fired
+      - fault_armed
+      - fault_requested
+      - clear_shutdown
+      - fault_in_boot
+      - guest_never_ready
+      - client_degraded
+    outcome: wrongly_configured
+
+  - name: unclassified_run
+    outcome: unclassified
+
+faults:
+  crash:
+    fi_fault: 1
+    requires_can_fail: false
+    must_fire: true
+    admissible: 
+      - crash_error_run
+      - invisible_crash_run
+
+  hang:
+    fi_fault: 2
+    requires_can_fail: false
+    must_fire: true
+    admissible: 
+      - hang_run
+
+  error:
+    fi_fault: 3
+    requires_can_fail: true
+    must_fire: true
+    admissible: 
+      - fail_silent_run
+      - api_error_run
+      - crash_error_run  #in case an assertion fails
+      - invisible_crash_run
+
+  delay:
+    fi_fault: 4
+    requires_can_fail: false
+    must_fire: true
+    admissible: 
+      - delay_run
+
+
+run:
+  app_dir: /srv/unikraft/apps/nginx
+  kernel: workdir/build/nginx_qemu-x86_64
+  qemu: qemu-system-x86_64
+  memory: 256M
+  accel: kvm
+  port: 80
+  rootfs: rootfs
+  mount_tag: fs0
+  hostfwd: tcp::8080-:80
+
+  devices:
+    - "-device isa-debug-exit,iobase=0x501,iosize=2"
+
+  exit_codes:
+    83: clear_shutdown
+    85: crash
+    0: acpi_fallback
+
+  reset:
+    - rm -f <rootfs>/nginx/logs/access.log <rootfs>/nginx/logs/error.log
+    - rm -f <rootfs>/nginx/logs/nginx.pid
+
+
+  append: 
+    baseline: "libukfi.gcov_after_ms=<ms> -- "
+    injected: "libukfi.fi_site=<site> libukfi.fi_fault=<fault> libukfi.fi_nop=<nop> libukfi.fi_period=<period> libukfi.gcov_after_ms=<ms> -- "
+
+  gcov_after_ms: 15000
+
+  log: boot.log
+
+workload:
+  readiness:
+    command: "wget -qO- --timeout=2 --tries=1 -S http://127.0.0.1:8080/"
+    expect: "200 OK"
+    interval_ms: 200
+    deadline_s: 20
+    on_failure: guest_never_ready
+
+  client:
+    command: "ab -n 3000 -c 20 http://127.0.0.1:8080/"
+    duration_s: 5.5
+
+  metrics:
+    - throughput_rps
+    - latency_max_ms
+    - latency_p99_ms
+
+  degraded_if:
+    latency_max_ms: "> 60"
+
+  teardown:
+    - "pkill -f ab"
+
+matrix:
+  sites:
+    write:    { can_fail: true,  fi_nop: [1, 1500, 3000] } # invoked 3016 times
+    lookup:   { can_fail: true,  fi_nop: [1, 6000, 12000] } # invoked 12036 times
+    fsync:    { can_fail: true,  fi_nop: [1, 1500, 3000] } # invoked 3006 times
+    open:     { can_fail: true,  fi_nop: [1, 1500, 3000] } # invoked 3009 times
+    read:     { can_fail: true,  fi_nop: [1, 1500, 3000] } # invoked 3005 times
+    getattr:  { can_fail: true,  fi_nop: [1, 3000, 6000] } # invoked 6011 times
+    inactive: { can_fail: false, fi_nop: [1, 6000, 12000] } # invoked 12026 times
+    close:    { can_fail: false, fi_nop: [1, 1500, 3000] } # invoked 3006 times
+    mount:    { can_fail: false, fi_nop: [1] }
+    # unmount:  { can_fail: false, fi_nop: [1] } is not executable
+
+  faults: [crash, hang, error, delay]
+  fi_period: 0
+  fi_prob: 100000
+  baseline_runs: 5
+
+protocol:
+  rounds: 2
+  repeat: all
+  reproducible_if: same_outcome
+  on_disagreement: flaky
+
+  baseline:
+    count: 5
+    interleave_every: 20
+    establishes:
+      - latency_max_baseline_ms
+      - boot_complete_ms
+
+  order: sequential
+  results: results/nginx-<timestamp>.jsonl
+  append_immediately: true
+  resume_from: last_row
+
+  abort_if:
+    consecutive_must_fire_failures: 3
+    consecutive_infra_errors: 3
+
+  infra_retry: 1
