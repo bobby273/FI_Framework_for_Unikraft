@@ -44,13 +44,32 @@ for k, val in (("APP", r["app_dir"]),
     print(f"{k}={shlex.quote(str(val))}")
 PY
 )"
-    say "riscaldamento $camp: un avvio a vuoto per scaldare la cache"
-    timeout 90 qemu-system-x86_64 -kernel "$KERNEL" -nographic -m 256M -accel kvm -cpu host \
-        -netdev "user,id=n0,hostfwd=$FWD" -device virtio-net-pci,netdev=n0 \
-        -fsdev "local,id=myid,path=$ROOTFS,security_model=none" \
-        -device "virtio-9p-pci,fsdev=myid,mount_tag=$TAG,disable-modern=on,disable-legacy=off" \
-        -append "$APPEND" > /dev/null 2>&1
-    say "riscaldamento $camp: fatto (exit $?)"
+    # Il riscaldamento e' anche il collaudo della macchina: un avvio sano
+    # con gcov_after_ms=8000 chiude in ~10 s. Se ci mette piu' di 40 s il
+    # guest sta girando ordini di grandezza sotto il normale -- succede
+    # con scritture arretrate sul disco dopo una ricompilazione, e ogni
+    # riga sulla console seriale si blocca. In quello stato la campagna
+    # produce solo run scadute, quindi si aspetta invece di partire.
+    local tentativo t0 t
+    for tentativo in 1 2 3; do
+        say "riscaldamento $camp: avvio a vuoto (tentativo $tentativo)"
+        t0=$(date +%s)
+        timeout 90 qemu-system-x86_64 -kernel "$KERNEL" -nographic -m 256M -accel kvm -cpu host \
+            -netdev "user,id=n0,hostfwd=$FWD" -device virtio-net-pci,netdev=n0 \
+            -fsdev "local,id=myid,path=$ROOTFS,security_model=none" \
+            -device "virtio-9p-pci,fsdev=myid,mount_tag=$TAG,disable-modern=on,disable-legacy=off" \
+            -append "$APPEND" < /dev/null > /dev/null 2>&1
+        t=$(( $(date +%s) - t0 ))
+        if [ "$t" -le 40 ]; then
+            say "riscaldamento $camp: ok in ${t}s, macchina pronta"
+            return 0
+        fi
+        say "riscaldamento $camp: ${t}s, troppo lento -- sync e attesa di 180 s"
+        sync
+        sleep 180
+    done
+    say "riscaldamento $camp: ancora lento dopo 3 tentativi, campagna SALTATA"
+    return 1
 }
 
 say "avvio orchestrazione, pid $$, passate=$PASSATE"
@@ -68,7 +87,9 @@ for passata in $(seq 1 "$PASSATE"); do
             say "archiviato un $camp.jsonl preesistente"
         fi
 
-        riscaldamento "$camp"
+        if ! riscaldamento "$camp"; then
+            continue
+        fi
 
         say "=== passata $passata / $camp : inizio"
         timeout "$CAP" python3 "$H/runner.py" "$camp.yaml" >> "$MASTER" 2>&1

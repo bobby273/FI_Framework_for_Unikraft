@@ -151,7 +151,13 @@ def launch_guest(cfg, append, logpath):
     argv += ["-append", append]
 
     f = open(logpath, "w")
-    proc = subprocess.Popen(argv, cwd=app, stdout=f, stderr=subprocess.STDOUT)
+    # stdin=DEVNULL e' obbligatorio: con -nographic QEMU legge da stdin, e in
+    # un process group di background (nohup ... &) la lettura dal terminale
+    # gli fa arrivare SIGTTIN e lo sospende. Il guest avanza a scatti e non
+    # finisce mai -- e' il motivo per cui le prove in primo piano riuscivano
+    # e la campagna in background no.
+    proc = subprocess.Popen(argv, cwd=app, stdin=subprocess.DEVNULL,
+                            stdout=f, stderr=subprocess.STDOUT)
     t = time.time()
     return proc, f, t
 

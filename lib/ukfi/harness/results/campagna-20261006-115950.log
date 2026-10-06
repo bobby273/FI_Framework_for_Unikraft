@@ -1,0 +1,21 @@
+[11:59:50] avvio orchestrazione, pid 90159, passate=1
+[11:59:50] attese per passata: redis ~180 run x 25 s (~75 min), nginx ~170 x 35 s (~100 min)
+[11:59:50] riscaldamento redis: avvio a vuoto (tentativo 1)
+[12:00:00] riscaldamento redis: ok in 10s, macchina pronta
+[12:00:00] === passata 1 / redis : inizio
+[13:28:51] === passata 1 / redis : fine  exit=0  righe=180
+[13:28:56] riscaldamento nginx: avvio a vuoto (tentativo 1)
+[13:29:05] riscaldamento nginx: ok in 9s, macchina pronta
+[13:29:05] === passata 1 / nginx : inizio
+[15:16:31] === passata 1 / nginx : fine  exit=0  righe=204
+[15:16:36] fine orchestrazione
+[15:16:36] risultati:
+-rw-rw-r-- 1 bobby bobby   4872 ott  6 01:50 /srv/unikraft/unikraft/lib/ukfi/harness/results/nginx-abortito-0129.jsonl
+-rw-rw-r-- 1 bobby bobby 125075 ott  6 15:16 /srv/unikraft/unikraft/lib/ukfi/harness/results/nginx-p1.jsonl
+-rw-rw-r-- 1 bobby bobby   7740 ott  6 11:52 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova.jsonl
+-rw-rw-r-- 1 bobby bobby   7793 ott  6 01:15 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-n100k.jsonl
+-rw-rw-r-- 1 bobby bobby   7744 ott  6 01:25 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-ok.jsonl
+-rw-rw-r-- 1 bobby bobby   7764 ott  6 01:01 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-period10.jsonl
+-rw-rw-r-- 1 bobby bobby   7764 ott  6 00:46 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-prima-di-fi_fault.jsonl
+-rw-rw-r-- 1 bobby bobby   5126 ott  6 01:41 /srv/unikraft/unikraft/lib/ukfi/harness/results/redis-abortito-0129.jsonl
+-rw-rw-r-- 1 bobby bobby 115819 ott  6 13:28 /srv/unikraft/unikraft/lib/ukfi/harness/results/redis-p1.jsonl

@@ -1,0 +1,6 @@
+[11:38:35] avvio orchestrazione, pid 87203, passate=1
+[11:38:35] attese per passata: redis ~180 run x 25 s (~75 min), nginx ~170 x 35 s (~100 min)
+[11:38:35] riscaldamento redis: avvio a vuoto (tentativo 1)
+[11:40:05] riscaldamento redis: 90s, troppo lento -- sync e attesa di 180 s
+[11:43:05] riscaldamento redis: avvio a vuoto (tentativo 2)
+[11:44:35] riscaldamento redis: 90s, troppo lento -- sync e attesa di 180 s

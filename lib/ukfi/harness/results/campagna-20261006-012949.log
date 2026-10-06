@@ -1,0 +1,20 @@
+[01:29:49] avvio orchestrazione, pid 74512, passate=1
+[01:29:49] attese per passata: redis ~180 run x 25 s (~75 min), nginx ~170 x 35 s (~100 min)
+[01:29:50] riscaldamento redis: un avvio a vuoto per scaldare la cache
+[01:31:20] riscaldamento redis: fatto (exit 124)
+[01:31:20] === passata 1 / redis : inizio
+too many must_fire violated, ending the campaign
+[01:41:23] === passata 1 / redis : fine  exit=0  righe=8
+[01:41:28] riscaldamento nginx: un avvio a vuoto per scaldare la cache
+[01:42:58] riscaldamento nginx: fatto (exit 124)
+[01:42:58] === passata 1 / nginx : inizio
+too many must_fire violated, ending the campaign
+[01:50:21] === passata 1 / nginx : fine  exit=0  righe=8
+[01:50:26] fine orchestrazione
+[01:50:26] risultati:
+-rw-rw-r-- 1 bobby bobby 4872 ott  6 01:50 /srv/unikraft/unikraft/lib/ukfi/harness/results/nginx-p1.jsonl
+-rw-rw-r-- 1 bobby bobby 7793 ott  6 01:15 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-n100k.jsonl
+-rw-rw-r-- 1 bobby bobby 7744 ott  6 01:25 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-ok.jsonl
+-rw-rw-r-- 1 bobby bobby 7764 ott  6 01:01 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-period10.jsonl
+-rw-rw-r-- 1 bobby bobby 7764 ott  6 00:46 /srv/unikraft/unikraft/lib/ukfi/harness/results/prova-prima-di-fi_fault.jsonl
+-rw-rw-r-- 1 bobby bobby 5126 ott  6 01:41 /srv/unikraft/unikraft/lib/ukfi/harness/results/redis-p1.jsonl
