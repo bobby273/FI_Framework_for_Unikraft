@@ -341,10 +341,10 @@ workload:
 
 matrix:
   sites:
-    write:    { can_fail: true,  fi_nop: [1, 250, 450] } # invoked 4267 times
-    lookup:   { can_fail: true,  fi_nop: [1, 12, 23] } # invoked only during boot phase
+    write:    { can_fail: true,  fi_nop: [1, 250, 400] } # invoked approximately 450 times
+    lookup:   { can_fail: true,  fi_nop: [1, 12, 18] } # invoked only during boot phase
     fsync:    { can_fail: true,  fi_nop: [1, 5, 9] } #invoked 12 times
-    open:     { can_fail: true,  fi_nop: [1, 4, 7] } # invoked only during boot phase
+    open:     { can_fail: true,  fi_nop: [1, 2, 4] } # invoked only during boot phase
     read:     { can_fail: true,  fi_nop: [1, 2] } # invoked only during boot phase
     getattr:  { can_fail: true,  fi_nop: [1] } # invoked only during boot phase
     inactive: { can_fail: false, fi_nop: [1, 4, 7] } # invoked only during boot phase

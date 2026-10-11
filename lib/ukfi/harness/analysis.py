@@ -36,7 +36,7 @@ def missed_table(tried, missed):
     tot  = Counter((r["site"], r["nop"]) for r in tried)
     miss = Counter((r["site"], r["nop"]) for r in missed)
     if not miss: 
-        print("nessuna run mancata")
+        print("no missed runs")
         return
     print("| site, operation number | missed | total | % missed |")
     print("|---|---:|---:|---:|---:|")
@@ -190,7 +190,7 @@ def main(args):
         else:
             print(f"\nIgnoring not jsonl files: {path} \n")
 
-    if redis !="" and nginx != "":
+    if redis !=None and nginx != None:
         write_comparation(redis_rows = redis, nginx_rows = nginx)
 
 
