@@ -1,5 +1,10 @@
 import yaml, subprocess, json, re, time, os, sys, statistics
 
+# paths 
+
+HARNESS_DIR = os.path.dirname(os.path.abspath(__file__))
+CAMPAIGNS_DIR = os.path.join(HARNESS_DIR, "campaigns")
+
 # helper functions
 
 def fill(to_be_replaced, values):
@@ -350,7 +355,7 @@ def main():
 
     # sys.argv[1] needs to be redis.yaml or nginx.yaml
     campaign_file = sys.argv[1]
-    cfg = load_campaign("/srv/unikraft/unikraft/lib/ukfi/harness/campaigns/"+campaign_file)
+    cfg = load_campaign(os.path.join(CAMPAIGNS_DIR, campaign_file))
     
     logdir=os.path.join(cfg["run"]["app_dir"], "logs")
     os.makedirs(logdir, exist_ok=True)
@@ -364,7 +369,7 @@ def main():
     results = fill(cfg["protocol"]["results"], base)
 
     if not os.path.isabs(results):
-        results = os.path.join(os.path.dirname(os.path.abspath(__file__)), results)
+        results = os.path.join(HARNESS_DIR, results)
     os.makedirs(os.path.dirname(results), exist_ok=True)
 
 
