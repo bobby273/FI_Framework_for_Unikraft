@@ -10,8 +10,34 @@ menuconfig LIBUKFI
 	select LIBUKPRINT
 	select LIBUKDEBUG_CRASH_SCREEN
     help
-        Injects faults into some Unikraft components and generates a report of 
-        the results.
+        Fault injection for Unikraft components: marks points in the code
+        where a fault can be introduced, and selects one of them at boot.
+
+        Mark the points to test in the component's source:
+
+            #include <uk/fi.h>
+            UK_FI_SITE("name");            /* crash, hang, delay */
+            UK_FI_SITE_ERR("name", -EIO);  /* also: return the error */
+
+        Use UK_FI_SITE_ERR only where the function has a real failure
+        path. Site names must be unique across the whole image: arming
+        matches on the name alone, so duplicates are armed together.
+
+        One image serves many experiments. The site, the fault type and
+        the trigger are chosen at boot through libukfi.* parameters:
+
+            -append "libukfi.fi_site=name libukfi.fi_fault=3 \
+                     libukfi.fi_nop=5 -- <application arguments>"
+
+        injects an error on the 5th call to that site. The injector
+        lists every site it finds at boot with armed=0 or armed=1: that
+        listing, not the command line, is the proof a parameter was
+        understood, as unknown parameters are ignored without warning.
+
+        The options below are build-time defaults only; the kernel
+        parameters above override them at every boot.
+
+        See lib/ukfi/README.md for the host-side campaign harness.
 
 if LIBUKFI
 
@@ -22,14 +48,27 @@ config LIBUKFI_FI_SITE
 config LIBUKFI_FI_NOP
 	int "Default invocation at which the fault fires"
 	default 1
+	help
+	  The fault fires from the n-th invocation of the site onwards.
+	  A value above the number of times the site is actually invoked
+	  arms the site and never fires: calibrate it on measured counts.
 
 config LIBUKFI_FI_PERIOD
     int "Periodicity of the fault injection (0=disabled)"
     default 0
+    help
+      0 fires on every invocation from fi_nop onwards. A value k fires
+      when (inv - fi_nop) is a multiple of k. Note that 0 does not mean
+      "once": for crash and hang the difference is invisible, for error
+      and delay it is not.
 
 config LIBUKFI_FI_PROB
     int "Probability over 100000 of the fault injection (100000 is always)"
     default 100000
+    help
+      100000 skips the random draw entirely. Below that, one random
+      state is shared by all sites, so a probabilistic run is only
+      reproducible for a given seed with a single site armed.
 
 config LIBUKFI_FI_SEED
     int "Seed for probabilistic triggers"
@@ -42,5 +81,9 @@ config LIBUKFI_FI_FAULT
 config LIBUKFI_GCOV_AFTER_MS
 	int "Time in ms waited to exit the application for profiling purposes (0=disabled)"
 	default 0
+	help
+	  Requests shutdown after the given time, so a server that never
+	  exits on its own can still terminate cleanly - for a coverage
+	  dump, or simply to bound an unattended run.
 
 endif
