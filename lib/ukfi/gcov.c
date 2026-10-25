@@ -80,11 +80,11 @@ static void uk_fi_gcov_term(struct uk_term_ctx *ctx __unused){
 
 uk_late_initcall(uk_fi_gcov_init, uk_fi_gcov_term);
 
-//creo thread
-//dorme N millisecondi
+//creating a thread
+//sleeps for N milliseconds
 //uk_boot_shutdown_req(UK_PM_SHUTDOWN_OP_SYSHALT)
-//thread di boot bloccato dalla barriera -> exit
+//boot thread blocked -> exit
 //term
-//uk_pm_shutdown() ->halt e QEMU esce
+//uk_pm_shutdown() ->halt and qemu exits
 
 #endif
