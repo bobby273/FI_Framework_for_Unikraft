@@ -1,3 +1,9 @@
+'''
+campaign controller, monitor and data collector.
+usage: python3 runner.py prova.yaml
+'''
+
+
 import yaml, subprocess, json, re, time, os, sys, statistics
 
 # paths 

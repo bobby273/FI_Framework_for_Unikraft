@@ -1,3 +1,9 @@
+'''
+analyzes the results, printing the stdout.
+-> needs to also print them on a csv to be more readable
+usage: python3 analysis.py results/prova.jsonl
+'''
+
 import collections, json, sys, statistics, os
 
 from collections import Counter
